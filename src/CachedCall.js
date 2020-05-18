@@ -22,21 +22,25 @@ module.exports = function CachedCall () {
       const { maxAge = age } = { maxAge: getMaxAge(value) }
       if (maxAge !== false) cache.set(key, value, maxAge)
     }
-    if (rejected && timestamp < (cached.timestamp + cacheError)) throw rejected
-
+    if (rejected && timestamp < (cached.timestamp + cacheError)) {
+      if (cached.isPromise) return Promise.reject(rejected)
+      throw rejected
+    }
     const on = {
-      success (resolved) {
-        set({ resolved, timestamp })
+      success (resolved, isPromise = false) {
+        set({ resolved, timestamp, isPromise })
         return resolved
       },
-      error (rejected) {
-        if (cacheError > 0) set({ rejected, timestamp }, cacheError)
-        throw rejected
-      }
+      error (rejected, isPromise = false) {
+        if (cacheError > 0) set({ rejected, timestamp, isPromise }, cacheError)
+        return rejected
+      },
+      resolve: v => Promise.resolve(on.success(v, true)),
+      reject: v => Promise.reject(on.error(v, true))
     }
     try {
       const ret = rest[fname].apply(this, args)
-      return isPromise(ret) ? ret.then(on.success, on.error) : on.success(ret)
-    } catch (rejected) { on.error(rejected) }
+      return isPromise(ret) ? ret.then(on.resolve, on.reject) : on.success(ret)
+    } catch (rejected) { throw on.error(rejected) }
   }
 }
