@@ -1,0 +1,27 @@
+{
+  "name": "cached-call",
+  "version": "1.0.0",
+  "description": "Cache the function result by wrapping it",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Elevista/cached-call.git"
+  },
+  "keywords": [
+    "cache",
+    "function",
+    "lru"
+  ],
+  "author": "Elevista",
+  "license": "MIT",
+  "main": "./src/CachedCall.js",
+  "devDependencies": {
+    "mocha": "^7.1.2",
+    "standard": "^14.3.4"
+  },
+  "dependencies": {
+    "lru-cache": "^5.1.1"
+  }
+}
