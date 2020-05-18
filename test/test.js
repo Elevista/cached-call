@@ -22,10 +22,9 @@ describe('CachedCall', () => {
   })
   it('should work with async funciton', async () => {
     const value = 33
-    const ret = await cached.asyncFunction(value)
-    assert.strictEqual(ret, value)
+    assert.strictEqual(value, await cached.asyncFunction(value))
     await wait(200)
-    assert.strictEqual(33, await cached.asyncFunction(value))
+    assert.strictEqual(value, await cached.asyncFunction(value))
   })
 
   it('should expire after maxAge', async () => {
