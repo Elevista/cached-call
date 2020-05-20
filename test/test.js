@@ -57,10 +57,28 @@ describe('CachedCall', () => {
   })
 
   it('should support key function', async () => {
-    const key = (a1, a2) => [a1, a2]
-    const withKey = cache({ object, key, maxAge: 500 })
+    const that = {}
+    const key = function (a1, a2) {
+      assert.strictEqual(that, this)
+      return [a1, a2]
+    }
+    const withKey = cache({ object, key, maxAge: 500 }).bind(that)
     const without = cache({ object, maxAge: 500 })
     assert.strictEqual(withKey(1, 2, 3, 4), withKey(1, 2, 1, 2))
     assert.notStrictEqual(without(1, 2, 3, 4), without(1, 2, 1, 2))
+  })
+
+  it('should support maxAge function', async () => {
+    const that = {}
+    const maxAge = function () {
+      assert.strictEqual(that, this)
+      return 100
+    }
+    const fn = cache({ object, maxAge }).bind(that)
+    const obj = fn()
+    await wait(10)
+    assert.strictEqual(obj, fn())
+    await wait(100)
+    assert.notStrictEqual(obj, fn())
   })
 })

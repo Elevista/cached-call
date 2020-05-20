@@ -13,7 +13,7 @@ module.exports = function CachedCall () {
     const [fname] = Object.keys(rest)
     const get = {
       key: isFunction(key) ? key : (...args) => key || args,
-      maxAge: (value, args) => {
+      maxAge: function (value, ...args) {
         if (maxAge >= 0 || !isFunction(maxAge) || !noError(value)) return
         const { resolved, result } = value
         return maxAge.call(this, 'resolved' in value ? resolved : result, ...args)
@@ -38,7 +38,7 @@ module.exports = function CachedCall () {
       }
 
       const set = async (value, age) => {
-        const res = get.maxAge(value)
+        const res = get.maxAge.call(this, value, ...args)
         const timestamp = Date.now()
         const { maxAge = age } = { maxAge: isPromise(res) ? await res : res }
         if (maxAge !== false) cache.set(key, { ...value, timestamp }, maxAge)
